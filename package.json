@@ -5,8 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "gen:redirects": "node scripts/gen-redirects.mjs",
-    "prebuild": "node scripts/gen-redirects.mjs",
+    "gen:redirects": "tsx scripts/gen-redirects.mjs",
+    "prebuild": "tsx scripts/gen-redirects.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
@@ -15,5 +15,8 @@
     "@astrojs/sitemap": "^3.2.1",
     "astro": "^5.2.5",
     "sharp": "^0.33.5"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.0"
   }
 }
