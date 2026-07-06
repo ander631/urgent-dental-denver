@@ -1,0 +1,77 @@
+---
+/**
+ * Base layout for every page. Emits the strict-order <head> (spec §7):
+ *   charset → viewport → title → description → canonical → robots → OG → JSON-LD
+ * Only valid <head> elements appear here (no <meta name="keywords">). Then the
+ * shared chrome: trust bar, util bar, sticky nav, page slot, footer, and the
+ * always-present mobile sticky call bar.
+ */
+import '../styles/global.css';
+import { SITE } from '../data/site';
+import TrustBar from '../components/TrustBar.astro';
+import UtilBar from '../components/UtilBar.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import MobileCallBar from '../components/MobileCallBar.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  /** JSON-LD blocks (objects). Rendered last in <head>. */
+  jsonLd?: Record<string, unknown>[];
+  /** Absolute OG image URL. TODO(owner): real branded/exterior OG image. */
+  ogImage?: string;
+  /** Preload the hero image on pages that have one (protects LCP — spec §7). */
+  preloadHero?: string;
+}
+
+const { title, description, jsonLd = [], ogImage, preloadHero } = Astro.props;
+
+// Self-referencing absolute canonical (spec §7/§8). One per page.
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImg = ogImage ?? new URL('/og-default.jpg', Astro.site).href; // TODO(owner): asset
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImg} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+
+    {/* Fonts: preconnect + display=swap (spec §3, §7). Newsreader for display
+        headings/emphasis; Hanken Grotesque for body/UI. */}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Hanken+Grotesque:wght@400;500;600;700;800&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap"
+    />
+
+    {preloadHero && <link rel="preload" as="image" href={preloadHero} />}
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {jsonLd.map((block) => (
+      <script type="application/ld+json" set:html={JSON.stringify(block)} />
+    ))}
+  </head>
+  <body>
+    <TrustBar />
+    <UtilBar />
+    <Nav />
+    <main id="home">
+      <slot />
+    </main>
+    <Footer />
+    <MobileCallBar />
+  </body>
+</html>

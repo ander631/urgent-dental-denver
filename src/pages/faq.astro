@@ -1,0 +1,90 @@
+---
+/**
+ * FAQ → /faq/ (spec §5, §8; owner request). THE single home for Q&A on the site.
+ * Aggregates the practice-level questions + every service's questions into one
+ * page, and is the ONLY page that emits FAQPage schema (individual service/area
+ * pages weave the same info into their prose instead of repeating FAQ blocks).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import FaqBlock from '../components/FaqBlock.astro';
+import CtaSpine from '../components/CtaSpine.astro';
+import { SERVICE_BY_SLUG } from '../data/services';
+import { AREAS } from '../data/areas';
+import { PRACTICE_FAQS } from '../data/faqs';
+import { breadcrumbList, faqPage, medicalWebPage } from '../lib/schema';
+
+const site = Astro.site!.href;
+const base = site.replace(/\/$/, '');
+const canonical = `${base}/faq/`;
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'FAQ', path: '/faq/' },
+];
+
+// The 10 highest-value questions (owner request: not all 41). Pulled from the
+// source data so the visible text + schema can't drift. Each service's own
+// answers still live woven into its page body ("Good to know"); this page is the
+// short, high-intent set. `svcFaq` finds one question on a service by substring.
+const svcFaq = (slug: string, needle: string) =>
+  SERVICE_BY_SLUG[slug].faqs.find((f) => f.q.includes(needle))!;
+
+const TOP_FAQS = [
+  PRACTICE_FAQS[0], // What counts as a dental emergency?
+  PRACTICE_FAQS[1], // Are you open on weekends and holidays?
+  PRACTICE_FAQS[2], // Do you take walk-ins?
+  PRACTICE_FAQS[3], // Do you take my insurance, and what will it cost?
+  svcFaq('knocked-out-tooth-denver-co', 'first 30 minutes'),
+  svcFaq('dental-trauma-denver-co', 'ER instead'),
+  svcFaq('root-canal-denver-co', 'same day I call'),
+  svcFaq('toothache-and-dental-pain-denver-co', 'stopped'),
+  svcFaq('dental-abscess-infection-denver-co', 'antibiotics alone'),
+  svcFaq('lost-filling-or-crown-denver-co', 'put back on'),
+];
+
+const title = 'Emergency Dentist FAQ | Urgent Dental of Denver';
+const description =
+  'Answers about emergency dental care in Denver — hours, walk-ins, insurance and cost, and what to do for a toothache, knocked-out tooth, abscess and more. Call (720) 573-2629.';
+
+const jsonLd = [
+  breadcrumbList(site, crumbs),
+  faqPage(TOP_FAQS),
+  medicalWebPage({ site, canonical, name: 'Frequently Asked Questions', description }),
+];
+---
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
+  <div class="wrap">
+    <Breadcrumb items={crumbs} />
+
+    <header class="self-start" style="max-width:760px">
+      <div class="eyebrow">Frequently asked questions</div>
+      <h1>Emergency Dentist FAQ</h1>
+      <p class="lead">
+        Quick answers about hours, walk-ins, insurance and cost, and what to do for specific dental
+        emergencies. Still not sure? Call (720) 573-2629 — we'll help you decide whether to come in
+        now.
+      </p>
+    </header>
+
+    <FaqBlock faqs={TOP_FAQS} heading="Top questions" />
+
+    <section class="article prose">
+      <h2>Have a more specific question?</h2>
+      <p>
+        Each emergency has its own page with detailed guidance — see
+        <a href="/emergency-dentist-denver-co/">all emergency services</a>, or just call
+        (720) 573-2629 and describe what's going on. We see patients from across the south metro;
+        for directions and drive times from your area, see our pages for
+        {AREAS.map((a, i) => (
+          <>{i > 0 ? ', ' : ' '}<a href={`/${a.slug}/`}>{a.area}</a></>
+        ))}.
+      </p>
+    </section>
+  </div>
+
+  <CtaSpine
+    heading="Still have a question? Just call."
+    text="We answer the phone and keep same-day time open. New patients (720) 573-2629 · existing patients (720) 988-0759."
+  />
+</BaseLayout>

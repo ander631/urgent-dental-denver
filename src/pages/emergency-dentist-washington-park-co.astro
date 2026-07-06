@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AreaArticle from '../components/AreaArticle.astro';
+import { AREA_BY_SLUG } from '../data/areas';
+import { breadcrumbList, areaPageSchema } from '../lib/schema';
+
+const a = AREA_BY_SLUG['emergency-dentist-washington-park-co'];
+const site = Astro.site!.href;
+const canonical = new URL(`/${a.slug}/`, site).href;
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Emergency Services', path: '/emergency-dentist-denver-co/' },
+  { name: a.area, path: `/${a.slug}/` },
+];
+const jsonLd = [
+  breadcrumbList(site, crumbs),
+  ...areaPageSchema({ site, canonical, area: a.area, h1: a.h1, description: a.metaDescription }),
+];
+---
+<BaseLayout title={a.title} description={a.metaDescription} jsonLd={jsonLd}>
+  <AreaArticle area={a} />
+</BaseLayout>

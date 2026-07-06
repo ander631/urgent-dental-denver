@@ -1,0 +1,71 @@
+---
+/**
+ * Shared body for an areas-we-serve page (spec §5). Genuinely local: local
+ * direct-answer, real neighborhood/landmark/route context, service links, CTA.
+ * Rendered by the area page files (no [param] catch-all at root, to avoid
+ * colliding with the service-page dynamic route).
+ *
+ * FAQs: per owner request, FAQ Q&A now lives on ONE page (/faq/) instead of a
+ * repeated block on every area page. The substantive local info (drive routes,
+ * same-day, insurance) is already woven into `local` + `whyChoose` above, so
+ * nothing is lost here; the page just links to /faq/ for the full Q&A.
+ */
+import type { Area } from '../data/areas';
+import Breadcrumb from './Breadcrumb.astro';
+import CtaSpine from './CtaSpine.astro';
+import CallButton from './CallButton.astro';
+import RelatedServices from './RelatedServices.astro';
+import { SITE } from '../data/site';
+
+interface Props { area: Area; }
+const { area } = Astro.props;
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Emergency Services', path: '/emergency-dentist-denver-co/' },
+  { name: area.area, path: `/${area.slug}/` },
+];
+---
+<div class="wrap">
+  <Breadcrumb items={crumbs} />
+
+  <section class="svc-hero article">
+    <div class="eyebrow">Same-Day Emergency Dentist · {area.area}, CO</div>
+    <h1>{area.h1}</h1>
+    <div class="answer">
+      {area.directAnswer}
+      <div class="a-cta">
+        <CallButton size="big" lead="Call Now — New Patients" />
+        <a class="btn btn-ghost" href="/#contact">Request a Time</a>
+      </div>
+    </div>
+  </section>
+
+  <article class="article prose">
+    <h2>Emergency dental care near {area.area}</h2>
+    {area.local.map((p) => <p>{p}</p>)}
+
+    <h2>Why {area.area} patients choose us</h2>
+    <ul class="checks">
+      {area.whyChoose.map((w) => <li>{w}</li>)}
+    </ul>
+
+    <h2>Emergencies we treat</h2>
+    <p>Whatever brought you here, the next step is the same — call and come in. See the
+      services below for the most common emergencies we handle, or read our
+      <a href="/faq/">frequently asked questions</a> for more on cost, insurance, and what to expect.</p>
+  </article>
+
+  <RelatedServices slugs={area.relatedServices} />
+
+  <CtaSpine
+    heading={`In pain in ${area.area}? We'll see you today.`}
+    text="We're open 8am–8pm every day, walk-ins welcome. Call now and we'll get you seen."
+  />
+
+  <p class="muted" style="max-width:760px;margin:20px auto 0;text-align:center;font-size:14px;font-weight:600">
+    Find us at {SITE.address.street}, {SITE.address.locality}, {SITE.address.region} {SITE.address.postalCode}.
+    Existing patient? Call
+    <a href={SITE.phoneExisting.href} style="color:var(--ink);font-weight:800">{SITE.phoneExisting.display}</a>.
+  </p>
+</div>

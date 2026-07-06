@@ -1,0 +1,117 @@
+---
+/**
+ * Emergency services hub → /emergency-dentist-denver-co/ (spec §4a, §5).
+ * H1 + direct-answer → grid to every service page → why emergency-only →
+ * cost & insurance summary → primary call CTA. FAQ Q&A now lives on /faq/
+ * (owner request); the info stays woven into the prose below.
+ * Schema: MedicalWebPage + BreadcrumbList (spec §8; FAQPage only on /faq/).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import CtaSpine from '../components/CtaSpine.astro';
+import CallButton from '../components/CallButton.astro';
+import { SERVICES } from '../data/services';
+import { SITE } from '../data/site';
+import { breadcrumbList, businessId, drBoyd } from '../lib/schema';
+
+const site = Astro.site!.href;
+const canonical = new URL('/emergency-dentist-denver-co/', site).href;
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Emergency Services', path: '/emergency-dentist-denver-co/' },
+];
+
+const webPageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'MedicalWebPage',
+  name: 'Emergency Dentist in Denver, CO',
+  description:
+    'Same-day emergency dental care in Denver — toothaches, broken and knocked-out teeth, extractions, root canals, abscesses and more. Open 8am–8pm every day.',
+  url: canonical,
+  inLanguage: 'en-US',
+  isPartOf: { '@id': businessId(site) },
+  reviewedBy: drBoyd(site),
+  provider: { '@id': businessId(site) },
+};
+
+const title = 'Emergency Dentist in Denver, CO | Urgent Dental';
+const description =
+  'Same-day emergency dentist in Denver, open 8am–8pm every day. Toothaches, broken & knocked-out teeth, extractions, root canals, abscesses. Call (720) 573-2629.';
+---
+<BaseLayout
+  title={title}
+  description={description}
+  jsonLd={[breadcrumbList(site, crumbs), webPageSchema]}
+>
+  <div class="wrap">
+    <Breadcrumb items={crumbs} />
+
+    <section class="svc-hero article">
+      <div class="eyebrow">Emergency-Only · Denver, CO</div>
+      <h1>Emergency Dentist in Denver, CO</h1>
+      <div class="answer">
+        Urgent Dental of Denver is an emergency-only dental practice — it's all we do. That means
+        when you're in pain, you're never stuck waiting behind routine cleanings. We're open 8am to
+        8pm every day, walk-ins are welcome, and we treat the full range of dental emergencies
+        below. Not sure which one fits? Just call and describe what's going on.
+        <div class="a-cta">
+          <CallButton size="big" lead="Call Now — New Patients" />
+          <a class="btn btn-ghost" href="/#contact">Request a Time</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="article" style="margin-top:8px">
+      <div class="hub-grid">
+        {SERVICES.map((s) => (
+          <a class="hub-card" href={`/${s.slug}/`}>
+            <h3>{s.name}</h3>
+            <p>{s.hubBlurb}</p>
+            <span class="go">See emergency care →</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="article prose">
+      <h2>Why an emergency-only dentist</h2>
+      <p>
+        A general dentist splits the day between checkups, cleanings, and emergencies. We don't —
+        emergencies are the whole practice. That focus is why we can see people the same day and get
+        them out of pain fast.
+      </p>
+      <ul class="checks">
+        <li>Seen faster — no waiting behind hygiene visits and checkups.</li>
+        <li>Open 8am–8pm every single day, including weekends and holidays.</li>
+        <li>Walk-ins welcome; call ahead and we'll have everything ready.</li>
+        <li>Upfront pricing before we start — no surprises.</li>
+        <li>Calm, non-judgmental care, and trusted by referring dentists.</li>
+      </ul>
+
+      <h2>Cost &amp; insurance</h2>
+      <p>
+        We keep cost simple and upfront. Most PPO plans are welcome, and CareCredit financing is
+        available if you need to spread out the cost. You'll know the price before any treatment
+        begins — Dr. Boyd evaluates you first and explains your options, so there are no surprises.
+      </p>
+      <p class="note">
+        {/* TODO(owner §13.6): confirm the exact accepted PPO plans, CareCredit terms, and payment
+            methods so this can name specifics. */}
+        PPO insurance welcome · CareCredit financing · Apple Pay · Visa, Mastercard, Amex.
+      </p>
+      <p>Have a question about hours, walk-ins, insurance, or what to expect? See our
+        <a href="/faq/">frequently asked questions</a>.</p>
+    </section>
+
+    <CtaSpine
+      heading="In a dental emergency right now?"
+      text="Call and we'll get you seen today. New patients (720) 573-2629 · existing patients (720) 988-0759."
+    />
+
+    <p class="muted" style="max-width:760px;margin:20px auto 0;text-align:center;font-size:14px;font-weight:600">
+      Existing patient? Call
+      <a href={SITE.phoneExisting.href} style="color:var(--ink);font-weight:800">{SITE.phoneExisting.display}</a>.
+    </p>
+  </div>
+</BaseLayout>

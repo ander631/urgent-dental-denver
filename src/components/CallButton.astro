@@ -1,0 +1,33 @@
+---
+/**
+ * Primary conversion element (spec §9). Coral = the single action color,
+ * reserved for call/request CTAs — never decoration. New-patient number is the
+ * dominant CTA everywhere; existing-patient number stays visually secondary.
+ */
+import { SITE } from '../data/site';
+
+interface Props {
+  kind?: 'new' | 'existing';
+  size?: 'sm' | 'md' | 'big';
+  lead?: string;
+  /** Override the visible number line (defaults to the phone display). */
+  numberLabel?: string;
+  class?: string;
+}
+
+const {
+  kind = 'new',
+  size = 'md',
+  lead = 'Call Now',
+  numberLabel,
+  class: klass = '',
+} = Astro.props;
+
+const phone = kind === 'new' ? SITE.phoneNewPatients : SITE.phoneExisting;
+const sizeClass = size === 'big' ? 'big' : size === 'sm' ? 'btn-sm' : '';
+const num = numberLabel ?? phone.display;
+---
+<a class:list={['btn', 'btn-call', sizeClass, klass]} href={phone.href}>
+  <span class="btn-lead">{lead}</span>
+  <span class="btn-num">{num}</span>
+</a>

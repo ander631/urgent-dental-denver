@@ -1,0 +1,14 @@
+---
+/** Call-primary CTA spine used across service/hub pages (spec §9). */
+import CallButton from './CallButton.astro';
+interface Props { heading: string; text?: string; }
+const { heading, text } = Astro.props;
+---
+<section class="spine">
+  <h2>{heading}</h2>
+  {text && <p>{text}</p>}
+  <CallButton size="big" lead="Call Now — New Patients" class="center-x" />
+  <p style="color:rgba(234,243,241,.7);font-size:13px;margin-top:14px;margin-bottom:0">
+    Open 8am–8pm, every day · Walk-ins welcome
+  </p>
+</section>

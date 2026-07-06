@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# build output (Netlify regenerates on deploy)
+dist/
+
+# generated at build time by scripts/gen-redirects.mjs (prebuild)
+public/_redirects
+
+# astro
+.astro/
+
+# environment
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+
+# macOS / editors
+.DS_Store
+.vscode/
+.idea/

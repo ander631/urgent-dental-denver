@@ -1,0 +1,117 @@
+---
+/**
+ * New Patients → /new-patients/ (spec §5, §11 Phase 4). Target of the
+ * /patient-info/ 301 in the redirect map. What to bring, insurance & financing,
+ * forms, and what to expect on a same-day emergency visit.
+ *
+ * YMYL guardrails: no specific insurance-carrier names or dollar figures are
+ * invented. Insurance specifics are hedged and flagged TODO(owner §13.6).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import CtaSpine from '../components/CtaSpine.astro';
+import { SITE } from '../data/site';
+import { breadcrumbList, medicalWebPage } from '../lib/schema';
+
+const site = Astro.site!.href;
+const base = site.replace(/\/$/, '');
+const canonical = `${base}/new-patients/`;
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'New Patients', path: '/new-patients/' },
+];
+
+const title = 'New Patients | Urgent Dental of Denver — What to Expect';
+const description =
+  'New patient at Urgent Dental of Denver? What to bring, insurance and financing, and what to expect on a same-day emergency visit. Open 8am–8pm. Call (720) 573-2629.';
+
+const jsonLd = [
+  breadcrumbList(site, crumbs),
+  medicalWebPage({ site, canonical, name: 'New Patients', description }),
+];
+---
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
+  <div class="wrap">
+    <Breadcrumb items={crumbs} />
+
+    <header class="self-start" style="max-width:760px">
+      <div class="eyebrow">New patients</div>
+      <h1>New Patients</h1>
+      <p class="lead">
+        Most people who walk in here are new patients in pain — that's exactly who we're built for.
+        There's no long intake and no hoops. Here's what to bring and what to expect so your visit is
+        as fast and calm as possible.
+      </p>
+    </header>
+
+    <article class="article prose" style="margin-top:40px">
+      <h2>What to bring</h2>
+      <ul class="checks">
+        <li>A photo ID.</li>
+        <li>Your dental insurance card, if you have one (a photo of it works too).</li>
+        <li>A list of any medications you take and any allergies.</li>
+        <li>If a crown or filling came out, bring it — sometimes it can be re-cemented.</li>
+        <li>If you have a knocked-out tooth, bring it in milk or saliva and come immediately — don't wait to gather anything else.</li>
+      </ul>
+
+      <h2>Insurance &amp; financing</h2>
+      <p>
+        We want cost to be clear before anything happens, not a surprise afterward. You'll get an
+        upfront price for your treatment before we begin.
+      </p>
+      <ul class="checks">
+        <li>Most PPO dental insurance plans are welcome — bring your card and we'll help you understand your coverage.</li>
+        <li>CareCredit financing is available to spread out the cost of care.</li>
+        <li>No insurance? You'll still get an upfront, honest price — many emergencies are more affordable than people expect.</li>
+      </ul>
+      <p class="note">
+        {/* TODO(owner §13.6): confirm exactly which insurance networks you're in-network with,
+            whether you file claims for patients, accepted payment methods, and any membership/
+            self-pay plan. Replace the hedged copy above with specifics once confirmed. */}
+        Coverage varies by plan — call us with your insurance details and we'll walk you through it.
+      </p>
+
+      <h2>New patient forms</h2>
+      <p>
+        There's very little paperwork. When you arrive we'll have you fill out a short health-history
+        form so we can treat you safely — it takes just a few minutes, and our team can help if you're
+        in too much pain to write.
+      </p>
+      <p class="note">
+        {/* TODO(owner §13.9): if you have downloadable/online new-patient forms, link them here so
+            patients can complete them ahead of time. */}
+        Prefer to fill forms out ahead of time? Call {SITE.phoneNewPatients.display} and we'll get them to you.
+      </p>
+
+      <h2>What to expect on a same-day emergency visit</h2>
+      <ol class="steps">
+        <li>
+          <strong>Call ahead.</strong> Calling {SITE.phoneNewPatients.display} lets us hold time and have
+          the right things ready — but walk-ins are welcome too.
+        </li>
+        <li>
+          <strong>Fast check-in.</strong> A short health-history form, then straight back — we don't
+          make emergency patients wait behind routine cleanings.
+        </li>
+        <li>
+          <strong>Exam &amp; usually an X-ray.</strong> Dr. Boyd looks at what's going on and finds the
+          real source of the problem.
+        </li>
+        <li>
+          <strong>A clear plan and an upfront price.</strong> You'll know what's recommended and what it
+          costs before any treatment starts.
+        </li>
+        <li>
+          <strong>Relief the same day.</strong> Most emergencies are treated on the spot so you leave
+          out of pain.
+        </li>
+      </ol>
+    </article>
+  </div>
+
+  <CtaSpine
+    heading="Ready when you are — open 8am–8pm, every day."
+    text="Same-day emergency care, walk-ins welcome. New patients (720) 573-2629 · existing patients (720) 988-0759."
+  />
+</BaseLayout>

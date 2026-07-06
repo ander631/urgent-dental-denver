@@ -1,0 +1,87 @@
+---
+/**
+ * Callback / appointment-request form (spec §9). Real handler via Netlify Forms;
+ * progressive JS AJAX-submits and swaps to an inline thank-you, with a plain
+ * POST fallback if JS is off. Used on the homepage, Request, and Contact pages —
+ * all post to the same "callback" form so leads land in one inbox.
+ *
+ * TODO(owner §13.9): confirm where submissions route, and whether to also fire a
+ * text/email alert to the office (fast response matters for emergency leads).
+ * Configure the notification in Netlify → Forms once deployed.
+ */
+import CallButton from './CallButton.astro';
+interface Props {
+  formName?: string;
+  submitLabel?: string;
+}
+const { formName = 'callback', submitLabel = 'Request a Callback' } = Astro.props;
+---
+<div class="card">
+  <form id="callback-form" name={formName} method="POST" data-netlify="true" netlify-honeypot="bot-field">
+    <input type="hidden" name="form-name" value={formName} />
+    <p hidden><label>Don't fill this out: <input name="bot-field" /></label></p>
+
+    <div class="field">
+      <label for="cb-name">Your name</label>
+      <input class="input" id="cb-name" name="name" placeholder="First and last name" required />
+    </div>
+    <div class="two">
+      <div class="field">
+        <label for="cb-phone">Phone</label>
+        <input class="input" id="cb-phone" name="phone" type="tel" placeholder="(720) 000-0000" required />
+      </div>
+      <div class="field">
+        <label for="cb-date">Preferred date</label>
+        <input class="input" id="cb-date" name="date" type="date" />
+      </div>
+    </div>
+    <div class="field">
+      <label id="cb-win-label">Preferred window</label>
+      <div class="wins" role="radiogroup" aria-labelledby="cb-win-label">
+        <label class="win"><input type="radio" name="window" value="Morning" /><span>Morning</span></label>
+        <label class="win"><input type="radio" name="window" value="Lunch" /><span>Lunch</span></label>
+        <label class="win"><input type="radio" name="window" value="Afternoon" /><span>Afternoon</span></label>
+        <label class="win"><input type="radio" name="window" value="Evening" /><span>Evening</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label for="cb-notes">What's going on?</label>
+      <textarea class="input" id="cb-notes" name="notes" placeholder="Briefly — e.g. sharp pain in a back tooth since last night"></textarea>
+    </div>
+    <button type="submit" class="submit">{submitLabel}</button>
+    <p class="muted" style="font-size:12.5px;text-align:center;margin-top:12px">
+      This is a request, not a confirmed appointment — our staff will call you back to confirm. For
+      immediate care, please call.
+    </p>
+  </form>
+
+  <div class="thanks" id="callback-thanks" hidden>
+    <div class="stars" style="font-size:20px" aria-hidden="true">★★★★★</div>
+    <h3>Got it — we'll call you shortly.</h3>
+    <p>Your request is in. If you're in pain right now, don't wait for us to call back.</p>
+    <CallButton size="big" lead="Call Now" />
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('callback-form') as HTMLFormElement | null;
+  const thanks = document.getElementById('callback-thanks');
+  if (form && thanks) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      try {
+        await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(data as any).toString(),
+        });
+      } catch {
+        /* handler unavailable (local/staging) — still confirm so user isn't stuck */
+      }
+      form.setAttribute('hidden', '');
+      thanks.removeAttribute('hidden');
+      thanks.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+</script>

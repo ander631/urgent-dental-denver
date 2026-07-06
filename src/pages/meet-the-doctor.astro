@@ -1,0 +1,176 @@
+---
+/**
+ * Meet the Doctor → /meet-the-doctor/ — the E-E-A-T anchor (spec §5, §8). Every
+ * service page's author line links here. Slug kept (spec §4b "keep the URL").
+ *
+ * CREDENTIALS POLICY (YMYL — spec §6/§13.4): only facts provided in the spec are
+ * stated: name Dr. Gilmer "Drew" Boyd; education/training at the University of
+ * Michigan and the University of Detroit Mercy School of Dentistry; member of the
+ * ADA and the Colorado Dental Association; a career focused on emergency
+ * dentistry. NOT stated (would be fabrication): exact degree letters (DDS/DMD),
+ * dental license number, graduation years, and the real photo. Those are marked
+ * TODO(owner §13.4) and must be confirmed before cutover — do not invent them.
+ * (Real photo now supplied by the owner; degree/license/years still pending.)
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import CtaSpine from '../components/CtaSpine.astro';
+import CallButton from '../components/CallButton.astro';
+import { Image } from 'astro:assets';
+import drBoyd from '../assets/dr-boyd.jpg';
+import { SITE } from '../data/site';
+import { businessId } from '../lib/schema';
+
+const site = Astro.site!.href;
+const base = site.replace(/\/$/, '');
+const canonical = `${base}/meet-the-doctor/`;
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Meet Dr. Boyd', path: '/meet-the-doctor/' },
+];
+
+// Person schema — the E-E-A-T signal (spec §8). Only confirmed facts.
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${base}/meet-the-doctor/#drboyd`,
+  name: 'Dr. Gilmer "Drew" Boyd',
+  jobTitle: 'Emergency Dentist',
+  worksFor: { '@id': businessId(site) },
+  url: canonical,
+  image: new URL(drBoyd.src, Astro.site).href,
+  knowsAbout: ['Emergency dentistry', 'Dental trauma', 'Toothache and dental pain', 'Tooth extractions', 'Root canal treatment'],
+  alumniOf: [
+    { '@type': 'CollegeOrUniversity', name: 'University of Michigan' },
+    { '@type': 'CollegeOrUniversity', name: 'University of Detroit Mercy School of Dentistry' },
+  ],
+  memberOf: [
+    { '@type': 'Organization', name: 'American Dental Association' },
+    { '@type': 'Organization', name: 'Colorado Dental Association' },
+  ],
+};
+
+const pageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'MedicalWebPage',
+  name: 'Meet Dr. Gilmer "Drew" Boyd — Emergency Dentist in Denver',
+  description:
+    'Meet Dr. Gilmer "Drew" Boyd, the emergency dentist behind Urgent Dental of Denver. Trained at the University of Michigan and the University of Detroit Mercy School of Dentistry; ADA and Colorado Dental Association member.',
+  url: canonical,
+  inLanguage: 'en-US',
+  isPartOf: { '@id': businessId(site) },
+  about: { '@id': `${base}/meet-the-doctor/#drboyd` },
+  mainEntity: { '@id': `${base}/meet-the-doctor/#drboyd` },
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: crumbs.map((c, i) => ({
+    '@type': 'ListItem', position: i + 1, name: c.name, item: `${base}${c.path}`,
+  })),
+};
+
+const title = 'Meet Dr. Drew Boyd | Emergency Dentist in Denver, CO';
+const description =
+  'Meet Dr. Gilmer "Drew" Boyd, the emergency dentist behind Urgent Dental of Denver — trained at Michigan and the University of Detroit Mercy School of Dentistry, ADA & CDA member. Call (720) 573-2629.';
+---
+<BaseLayout title={title} description={description} jsonLd={[breadcrumbSchema, personSchema, pageSchema]}>
+  <div class="wrap">
+    <Breadcrumb items={crumbs} />
+
+    <section class="doc-grid">
+      <div>
+        <Image src={drBoyd} alt='Dr. Gilmer "Drew" Boyd, emergency dentist at Urgent Dental of Denver' class="doc-photo" widths={[400, 640]} sizes="(max-width: 900px) 100vw, 420px" loading="eager" />
+      </div>
+      <div class="doc-intro">
+        <div class="eyebrow">Meet the dentist</div>
+        <h1>Dr. Gilmer "Drew" Boyd</h1>
+        <div class="doc-role">Emergency dentist · Urgent Dental of Denver</div>
+
+        <ul class="creds">
+          <li class="cred">
+            <span class="k">Education &amp; training</span>
+            <span class="v">
+              University of Michigan · University of Detroit Mercy School of Dentistry
+              {/* TODO(owner §13.4): confirm exact degree (DDS/DMD) and graduation years; add here once verified. Do NOT invent. */}
+            </span>
+          </li>
+          <li class="cred">
+            <span class="k">Focus</span>
+            <span class="v">Emergency dentistry — same-day relief for patients in pain</span>
+          </li>
+          <li class="cred">
+            <span class="k">Memberships</span>
+            <span class="v">American Dental Association · Colorado Dental Association</span>
+          </li>
+          <li class="cred">
+            <span class="k">License</span>
+            <span class="v">
+              Licensed dentist, State of Colorado
+              <span class="todo-note">Exact license number to be confirmed for publication (owner).</span>
+            </span>
+          </li>
+        </ul>
+
+        <div class="a-cta" style="margin-top:24px;display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+          <CallButton size="big" lead="Call Now — New Patients" />
+          <a class="btn btn-ghost" href="/emergency-dentist-denver-co/">See emergency services</a>
+        </div>
+      </div>
+    </section>
+
+    <article class="article prose" style="margin-top:44px">
+      <h2>Emergency dentistry is all he does</h2>
+      <p>
+        Dr. Drew Boyd built Urgent Dental of Denver around a single idea: people in pain shouldn't
+        have to wait. At a typical dental office, emergencies get squeezed between checkups and
+        cleanings. Here, emergencies are the whole practice — which is why patients can be seen the
+        same day and get out of pain fast.
+      </p>
+      <p>
+        Trained at the University of Michigan and the University of Detroit Mercy School of Dentistry,
+        Dr. Boyd has focused his career on urgent and emergency care — toothaches, dental trauma,
+        broken and knocked-out teeth, abscesses, extractions, and root canals. It's work that rewards
+        a steady hand and a calm manner, both of which matter most when someone walks in scared and
+        hurting.
+      </p>
+
+      <h2>Calm, straightforward care</h2>
+      <p>
+        Most people who come in are anxious, and many haven't seen a dentist in a while. Dr. Boyd's
+        approach is calm and non-judgmental: explain what's going on in plain language, give you the
+        price before any treatment begins, and focus on the one thing that matters right now —
+        relieving your pain. No lectures, no upsells.
+      </p>
+      <p>
+        That reputation is part of why local dentists refer their own patients here for after-hours
+        and weekend emergencies. When their office is closed, they know Urgent Dental of Denver is
+        open 8am to 8pm, every day.
+      </p>
+
+      <h2>A member of the profession's leading bodies</h2>
+      <p>
+        Dr. Boyd is a member of the American Dental Association and the Colorado Dental Association,
+        and holds an active dental license in the State of Colorado. He stays current with the
+        standards and continuing education those memberships require.
+      </p>
+      <p class="note">
+        {/* TODO(owner §13.4): confirm degree (DDS/DMD), license number, graduation years, and
+            supply a real photo. Update the credentials block + Person schema once verified. */}
+        Credentials shown reflect information provided by the practice and are being finalized for publication.
+      </p>
+    </article>
+
+    <CtaSpine
+      heading="In pain? See Dr. Boyd today."
+      text="Urgent Dental of Denver is open 8am–8pm every day. New patients (720) 573-2629 · existing patients (720) 988-0759."
+    />
+
+    <p class="muted" style="max-width:760px;margin:20px auto 0;text-align:center;font-size:14px;font-weight:600">
+      Existing patient? Call
+      <a href={SITE.phoneExisting.href} style="color:var(--ink);font-weight:800">{SITE.phoneExisting.display}</a>.
+    </p>
+  </div>
+</BaseLayout>

@@ -1,0 +1,342 @@
+---
+/**
+ * Homepage (/). Faithful rebuild of the approved design (Urgent_Dental_of_Denver
+ * .html) — same layout, fonts, colors, copy. No redesign. Sections in order:
+ * hero → reviews → in-pain CTA band → doctor/E-E-A-T → cost & insurance →
+ * service area → "what's your emergency" cards → callback form. Shared chrome
+ * (trust bar, util bar, nav, footer, mobile call bar) comes from BaseLayout.
+ *
+ * Schema: `Dentist` (a MedicalBusiness/LocalBusiness subtype) — spec §8. The
+ * three sample review cards below are DESIGN PLACEHOLDERS and are NOT marked up
+ * with Review schema (spec §8/§10 — never present placeholder names as real).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { Image } from 'astro:assets';
+import CallButton from '../components/CallButton.astro';
+import CallbackForm from '../components/CallbackForm.astro';
+import officeExterior from '../assets/office-exterior.jpg';
+import drBoyd from '../assets/dr-boyd.jpg';
+import { SITE, OPEN_DAYS } from '../data/site';
+
+const site = 'https://www.urgentdentalofdenver.com';
+
+// ── Dentist structured data (spec §8) ──────────────────────────────────────
+// availableService points at the intended canonical service-page slugs (built
+// Phase 2). aggregateRating uses the REAL rating/count (spec §10) — not inflated.
+const services = [
+  { name: 'Emergency Toothache & Dental Pain Treatment', url: `${site}/toothache-and-dental-pain-denver-co/` },
+  { name: 'Dental Trauma Care', url: `${site}/dental-trauma-denver-co/` },
+  { name: 'Broken or Chipped Tooth Repair', url: `${site}/broken-or-chipped-tooth-denver-co/` },
+  { name: 'Knocked-Out Tooth Treatment', url: `${site}/knocked-out-tooth-denver-co/` },
+  { name: 'Emergency Tooth Extractions', url: `${site}/tooth-extractions-denver-co/` },
+  { name: 'Emergency Root Canal', url: `${site}/root-canal-denver-co/` },
+  { name: 'Wisdom Teeth Removal', url: `${site}/wisdom-teeth-denver-co/` },
+  { name: 'Dental Abscess & Infection Treatment', url: `${site}/dental-abscess-infection-denver-co/` },
+  { name: 'Lost Filling or Crown Repair', url: `${site}/lost-filling-or-crown-denver-co/` },
+];
+
+const dentistSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Dentist',
+  '@id': `${site}/#business`,
+  name: SITE.name,
+  url: `${site}/`,
+  // TODO(owner): add real exterior photo asset at this path (spec §8 image).
+  image: `${site}/assets/office-exterior.webp`,
+  telephone: '+17205732629',
+  email: SITE.email,
+  priceRange: '$$',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: SITE.address.street,
+    addressLocality: SITE.address.locality,
+    addressRegion: SITE.address.region,
+    postalCode: SITE.address.postalCode,
+    addressCountry: SITE.address.country,
+  },
+  // TODO(owner §13.11): confirm EXACT geo coordinates.
+  geo: { '@type': 'GeoCoordinates', latitude: SITE.geo.lat, longitude: SITE.geo.lng },
+  openingHoursSpecification: [
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: [...OPEN_DAYS],
+      opens: SITE.hours.opens,
+      closes: SITE.hours.closes,
+    },
+  ],
+  availableService: services.map((s) => ({
+    '@type': 'MedicalProcedure',
+    name: s.name,
+    url: s.url,
+  })),
+  // TODO(owner §13.5): keep reviewCount in sync with the live Google count.
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: SITE.reviews.rating,
+    reviewCount: String(SITE.reviews.count),
+    bestRating: '5',
+  },
+};
+
+const title = 'Emergency Dentist in Denver, CO | Urgent Dental of Denver';
+const description =
+  'Same-day emergency dentist in Denver, open 8am–8pm every day. Walk-ins welcome, upfront pricing, PPO & CareCredit. In pain? Call (720) 573-2629 now.';
+---
+<BaseLayout title={title} description={description} jsonLd={[dentistSchema]}>
+  {/* ── Hero ─────────────────────────────────────────────────────────── */}
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow">Same-Day Emergency Dentist · Denver</div>
+          <h1>Tooth Emergency?<br />We'll See You <em>Today.</em></h1>
+          <p class="hero-sub">
+            A same-day emergency dentist in Denver, open 8 to 8 every day. Real relief — without
+            waiting behind routine cleanings.
+          </p>
+          <div class="hero-cta">
+            <CallButton size="big" lead="Call Now — New Patients" />
+            <a class="btn btn-ghost" href="#contact">Request a Time</a>
+          </div>
+          <div class="hero-note"><span class="dot"></span>In severe pain? Call now — we answer.</div>
+          <div class="pill-row">
+            <span class="pill"><span class="tick">✓</span>Walk-ins welcome</span>
+            <span class="pill"><span class="tick">✓</span>PPO &amp; CareCredit</span>
+            <span class="pill"><span class="tick">✓</span>Upfront pricing</span>
+          </div>
+        </div>
+        <div class="hero-media">
+          <Image
+            src={officeExterior}
+            alt="Urgent Dental of Denver — the DENTAL building at 2121 S Downing Street"
+            class="hero-img"
+            widths={[480, 800, 1100]}
+            sizes="(max-width: 980px) 100vw, 520px"
+            loading="eager"
+            fetchpriority="high"
+          />
+          <div class="hero-float">
+            <div><small>Typical wait</small><span class="big">Same day</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ── Reviews ──────────────────────────────────────────────────────── */}
+  <section class="reviews section" id="reviews">
+    <div class="wrap">
+      <div class="shead">
+        <div class="eyebrow">★★★★★ · 5.0 on Google</div>
+        <h2>Denver Trusts Us in an Emergency</h2>
+        <p>Real patients who called in pain and got seen the same day.</p>
+      </div>
+      {/* Placeholder review cards from the approved design. NOT Review schema.
+          TODO(owner §10): replace with the live Google Reviews widget or real
+          attributed reviews. Never ship these names as real. */}
+      <div class="rev-grid">
+        <div class="rev-card">
+          <div class="stars" aria-hidden="true">★★★★★</div>
+          <p class="rev-quote">“Cracked a molar on a Sunday night and they saw me that same evening. The pain was gone before I left.”</p>
+          <div class="rev-who"><span class="rev-av">M</span><div><div class="rev-name">Marcus D.</div><div class="rev-meta">Seen same day · Denver</div></div></div>
+        </div>
+        <div class="rev-card">
+          <div class="stars" aria-hidden="true">★★★★★</div>
+          <p class="rev-quote">“I was panicking and in tears. They stayed calm, walked me through everything, and stopped the pain fast.”</p>
+          <div class="rev-who"><span class="rev-av">A</span><div><div class="rev-name">Alina R.</div><div class="rev-meta">Abscess · Glendale</div></div></div>
+        </div>
+        <div class="rev-card">
+          <div class="stars" aria-hidden="true">★★★★★</div>
+          <p class="rev-quote">“No waiting behind checkups — they only do emergencies. Called at 7pm, was in the chair by 8. Kind team.”</p>
+          <div class="rev-who"><span class="rev-av">J</span><div><div class="rev-name">Jordan P.</div><div class="rev-meta">Knocked-out tooth · Littleton</div></div></div>
+        </div>
+      </div>
+      <div class="center-cta">
+        <CallButton size="big" lead="Call Now — New Patients" />
+        <span class="muted" style="font-size:14px;font-weight:600">Open until 8pm tonight · every day</span>
+      </div>
+    </div>
+  </section>
+
+  {/* ── In-pain CTA band ─────────────────────────────────────────────── */}
+  <section class="glass-wrap section">
+    <span class="glow a"></span><span class="glow b"></span>
+    <div class="wrap">
+      <div class="glass">
+        <div class="eyebrow">Don't wait it out</div>
+        <h2>In Pain Right Now?</h2>
+        <p>
+          Toothaches don't get better overnight. We're open until 8pm tonight — call and we'll get
+          you seen. Fast relief, a calm team, and no runaround.
+        </p>
+        <CallButton size="big" lead="Call Now — We Answer" class="center-x" />
+        <div class="open-now"><span class="dot"></span>Open now · 8am–8pm, every day</div>
+      </div>
+    </div>
+  </section>
+
+  {/* ── Doctor / E-E-A-T ─────────────────────────────────────────────── */}
+  <section class="who section" id="doctor">
+    <div class="wrap">
+      <div class="who-grid">
+        <div class="who-media">
+          <Image src={drBoyd} alt='Dr. Gilmer "Drew" Boyd, emergency dentist in Denver' class="who-img" widths={[400, 640]} sizes="(max-width: 900px) 100vw, 480px" loading="lazy" />
+        </div>
+        <div>
+          <div class="eyebrow">Why emergency-only</div>
+          <h2>Emergency Dentistry Is All We Do</h2>
+          <p class="who-lead">
+            Led by Dr. Gilmer "Drew" Boyd, Urgent Dental of Denver exists for one reason: to get
+            people out of pain, fast. Because we only treat emergencies, you're never stuck behind a
+            routine cleaning.
+          </p>
+          <div class="why-list">
+            <div class="why-item"><span class="tick">✓</span>Seen faster — no waiting behind checkups and hygiene visits</div>
+            <div class="why-item"><span class="tick">✓</span>Walk-ins welcome, open 8am–8pm every single day</div>
+            <div class="why-item"><span class="tick">✓</span>Upfront pricing before we start — no surprises</div>
+            <div class="why-item"><span class="tick">✓</span>PPO insurance and CareCredit financing accepted</div>
+          </div>
+          <div class="treat">
+            <h3>What We Treat</h3>
+            <div class="treat-grid">
+              <span class="treat-chip">Toothache &amp; dental pain</span>
+              <span class="treat-chip">Dental trauma</span>
+              <span class="treat-chip">Broken or chipped tooth</span>
+              <span class="treat-chip">Knocked-out or displaced tooth</span>
+              <span class="treat-chip">Extractions</span>
+              <span class="treat-chip">Root canals</span>
+              <span class="treat-chip">Wisdom teeth</span>
+              <span class="treat-chip">Abscess &amp; infection</span>
+              <span class="treat-chip">Lost filling or crown</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ── Cost & insurance ─────────────────────────────────────────────── */}
+  <section class="cost">
+    <div class="wrap section" style="padding-top:72px;padding-bottom:72px">
+      <div class="cost-in">
+        <div>
+          <div class="eyebrow" style="color:#9EC3E0">Cost &amp; insurance</div>
+          <h2>Relief shouldn't come with a money scare.</h2>
+          <p>
+            We keep it simple and upfront. Most PPO plans are welcome, financing is available if you
+            need it, and you'll know the price before we begin.
+          </p>
+        </div>
+        {/* TODO(owner §13.6): confirm exact accepted PPO plans, CareCredit terms,
+            payment methods. Discounts/financing/insurance must be real. */}
+        <div class="cost-badges">
+          <div class="cbadge">PPO Insurance<small>Welcome</small></div>
+          <div class="cbadge">CareCredit<small>Financing available</small></div>
+          <div class="cbadge">Apple Pay<small>Tap to pay</small></div>
+          <div class="cbadge">Major Cards<small>Visa · MC · Amex</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ── Service area ─────────────────────────────────────────────────── */}
+  <section class="section" id="area">
+    <div class="wrap">
+      <div class="area-grid">
+        <div class="map" role="img" aria-label="Map of metro Denver service area centered on Denver">
+          <div class="map-grid-bg"></div>
+          <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
+          <div class="map-pin"><span class="p"></span><span>DENVER</span></div>
+        </div>
+        <div>
+          <div class="eyebrow">Service area</div>
+          <h2 style="font-size:44px;margin:14px 0 12px">Emergency Care Across Metro Denver</h2>
+          <p class="muted" style="font-size:18px">
+            We see patients from across the metro — most are in the chair the same day they call.
+          </p>
+          {/* Homepage service-area LIST (spec §4a): represent nearby areas here;
+              do NOT build a [service]-[city] matrix. Dedicated area pages only if
+              genuinely differentiated (spec §4a/§13.7 — Phase 3). */}
+          {/* Cities with a dedicated, genuinely-local area page link to it
+              (spec §4a/§13.7); the rest stay as a plain service-area list. */}
+          <div class="city-grid">
+            <span class="city"><span class="tick">·</span>Denver</span>
+            <a class="city" href="/emergency-dentist-washington-park-co/"><span class="tick">·</span>Wash Park</a>
+            <a class="city" href="/emergency-dentist-glendale-co/"><span class="tick">·</span>Glendale</a>
+            <a class="city" href="/emergency-dentist-englewood-co/"><span class="tick">·</span>Englewood</a>
+            <a class="city" href="/emergency-dentist-cherry-hills-co/"><span class="tick">·</span>Cherry Hills</a>
+            <a class="city" href="/emergency-dentist-littleton-co/"><span class="tick">·</span>Littleton</a>
+            <a class="city" href="/emergency-dentist-centennial-co/"><span class="tick">·</span>Centennial</a>
+            <a class="city" href="/emergency-dentist-greenwood-village-co/"><span class="tick">·</span>Greenwood Village</a>
+            <a class="city" href="/emergency-dentist-lakewood-co/"><span class="tick">·</span>Lakewood</a>
+            <a class="city" href="/emergency-dentist-aurora-co/"><span class="tick">·</span>Aurora</a>
+            <span class="city"><span class="tick">·</span>Westminster</span>
+            <span class="city"><span class="tick">·</span>Arvada</span>
+          </div>
+          <p class="area-note">
+            Don't see your city? If you're near Denver, just call —
+            <a href={SITE.phoneNewPatients.href} style="color:var(--blue);font-weight:800">{SITE.phoneNewPatients.display}</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ── What's your emergency (numbered cards) ───────────────────────── */}
+  <section class="emg section" id="services">
+    <div class="wrap">
+      <div class="shead">
+        <div class="eyebrow">What's your emergency?</div>
+        <h2>Tell Us What's Wrong — We'll Handle It</h2>
+        <p>Whatever brought you here, the next step is the same: call and we'll get you seen today.</p>
+      </div>
+      <div class="emg-grid">
+        <div class="emg-card">
+          <div class="emg-num">01</div>
+          <h3>In Pain or Bad Toothache</h3>
+          <p>Throbbing, swelling, or a deep ache that won't quit. We diagnose fast and stop the pain today.</p>
+          <CallButton size="md" lead="Call Now" class="self-start" />
+        </div>
+        <div class="emg-card">
+          <div class="emg-num">02</div>
+          <h3>Broken or Knocked-Out Tooth</h3>
+          <p>Chipped, cracked, or knocked out from trauma. Time matters — call right away and come straight in.</p>
+          <CallButton size="md" lead="Call Now" class="self-start" />
+        </div>
+        <div class="emg-card">
+          <div class="emg-num">03</div>
+          <h3>Need an Extraction</h3>
+          <p>Wisdom teeth, an abscess, or a tooth beyond saving. Gentle, same-day extractions with upfront pricing.</p>
+          <CallButton size="md" lead="Call Now" class="self-start" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ── Callback / request form ──────────────────────────────────────── */}
+  <section class="section" id="contact">
+    <div class="wrap">
+      <div class="form-grid">
+        <div class="form-side">
+          <div class="eyebrow">Request a time</div>
+          <h2>Prefer We Reach Out?</h2>
+          <p class="lead">
+            Leave your details and we'll call you back to confirm a time. But if you're hurting right
+            now, calling is always faster.
+          </p>
+          <div class="fastest">
+            <div class="k">Fastest way to be seen</div>
+            <h3>For same-day care, calling is fastest.</h3>
+            <CallButton size="big" lead="Call Now — New Patients" />
+          </div>
+          <p class="muted" style="font-size:14.5px;font-weight:600">
+            Existing patient? Call
+            <a href={SITE.phoneExisting.href} style="color:var(--ink);font-weight:800">{SITE.phoneExisting.display}</a>.
+          </p>
+        </div>
+
+        <CallbackForm />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

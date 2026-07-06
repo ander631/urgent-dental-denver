@@ -1,0 +1,97 @@
+---
+/**
+ * Blog post → /blog/<slug>/ (spec §5, §8, §11 Phase 4). BlogPosting schema,
+ * author byline linking Meet the Doctor, published/updated dates, and a
+ * "Key Takeaways" block up top. Content comes from posts.ts (see the migration
+ * policy note there — bodies are never invented).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import CtaSpine from '../../components/CtaSpine.astro';
+import RelatedServices from '../../components/RelatedServices.astro';
+import { POSTS } from '../../data/posts';
+import { fmtDate } from '../../lib/date';
+import { breadcrumbList, blogPosting } from '../../lib/schema';
+
+export function getStaticPaths() {
+  return POSTS.map((p) => ({ params: { slug: p.slug }, props: { post: p } }));
+}
+
+const { post } = Astro.props;
+const site = Astro.site!.href;
+const base = site.replace(/\/$/, '');
+const canonical = `${base}/blog/${post.slug}/`;
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Blog', path: '/blog/' },
+  { name: post.h1, path: `/blog/${post.slug}/` },
+];
+
+const jsonLd = [
+  breadcrumbList(site, crumbs),
+  blogPosting({
+    site,
+    canonical,
+    headline: post.title,
+    description: post.description,
+    datePublished: post.datePublished,
+    dateModified: post.dateModified,
+  }),
+];
+---
+<BaseLayout title={post.title} description={post.description} jsonLd={jsonLd}>
+  <div class="wrap">
+    <Breadcrumb items={crumbs} />
+
+    <header class="self-start" style="max-width:760px">
+      <div class="eyebrow">Emergency dental guide</div>
+      <h1>{post.h1}</h1>
+      <div class="post-meta">
+        <span class="av" aria-hidden="true">DB</span>
+        <span>
+          By <a href="/meet-the-doctor/">Dr. Drew Boyd</a> ·
+          {fmtDate(post.datePublished)}
+          {post.dateModified !== post.datePublished && <> · Updated {fmtDate(post.dateModified)}</>}
+        </span>
+      </div>
+    </header>
+
+    <div class="article" style="max-width:760px;margin-top:24px">
+      <div class="takeaways">
+        <p class="kt-label">Key takeaways</p>
+        <ul>
+          {post.keyTakeaways.map((t) => <li>{t}</li>)}
+        </ul>
+      </div>
+
+      <div class="prose">
+        {post.intro.map((p) => <p>{p}</p>)}
+
+        {post.sections.map((s) => (
+          <>
+            <h2>{s.heading}</h2>
+            {s.paras?.map((p) => <p>{p}</p>)}
+            {s.bullets && (
+              <ul class="checks">
+                {s.bullets.map((b) => <li>{b}</li>)}
+              </ul>
+            )}
+          </>
+        ))}
+
+        <p class="note">
+          This article is general information, not a diagnosis or a substitute for being seen. If
+          you're in pain or unsure, call us at (720) 573-2629 — we're open 8am–8pm every day.
+        </p>
+      </div>
+    </div>
+
+    <RelatedServices slugs={post.relatedServices} />
+  </div>
+
+  <CtaSpine
+    heading="Dental emergency right now?"
+    text="Don't wait it out. We hold same-day time open and answer the phone. New patients (720) 573-2629 · existing patients (720) 988-0759."
+  />
+</BaseLayout>

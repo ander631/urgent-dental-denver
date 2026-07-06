@@ -1,0 +1,15 @@
+---
+/**
+ * Persistent bottom call bar on mobile — the single highest-impact conversion
+ * element for this business (spec §9). Present site-wide on every page, not just
+ * the homepage. New-patient number only.
+ */
+import CallButton from './CallButton.astro';
+---
+<div class="mobilebar">
+  <div class="mb-info">
+    <b>New patients</b>
+    <small>Open until 8pm · every day</small>
+  </div>
+  <CallButton size="md" lead="Call Now" />
+</div>

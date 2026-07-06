@@ -1,0 +1,70 @@
+---
+/**
+ * Request an Appointment → /request-an-appointment/ (spec §5, §11 Phase 4).
+ * Callback form is the primary element, but the page is honest that calling is
+ * the fastest path to same-day care. Both numbers shown. Target of the
+ * /patient-info/-adjacent request flows in the redirect map.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import CallButton from '../components/CallButton.astro';
+import CallbackForm from '../components/CallbackForm.astro';
+import CtaSpine from '../components/CtaSpine.astro';
+import { SITE } from '../data/site';
+import { breadcrumbList, medicalWebPage } from '../lib/schema';
+
+const site = Astro.site!.href;
+const base = site.replace(/\/$/, '');
+const canonical = `${base}/request-an-appointment/`;
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Request an Appointment', path: '/request-an-appointment/' },
+];
+
+const title = 'Request an Appointment | Urgent Dental of Denver';
+const description =
+  'Request a same-day emergency dental appointment in Denver. Leave your details and we\'ll call you back — or call (720) 573-2629 now. Open 8am–8pm every day.';
+
+const jsonLd = [
+  breadcrumbList(site, crumbs),
+  medicalWebPage({ site, canonical, name: 'Request an Appointment', description }),
+];
+---
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
+  <div class="wrap">
+    <Breadcrumb items={crumbs} />
+
+    <div class="form-grid">
+      <div class="form-side">
+        <div class="eyebrow">Request a time</div>
+        <h1>Request an Appointment</h1>
+        <p class="lead">
+          Leave your details and we'll call you back to confirm a time. If you're in pain right now,
+          calling is always faster — we hold same-day time open for emergencies.
+        </p>
+        <div class="fastest">
+          <div class="k">Fastest way to be seen</div>
+          <h3>For same-day care, calling is fastest.</h3>
+          <CallButton size="big" lead="Call Now — New Patients" />
+        </div>
+        <p class="muted" style="font-size:14.5px;font-weight:600">
+          Existing patient? Call
+          <a href={SITE.phoneExisting.href} style="color:var(--ink);font-weight:800">{SITE.phoneExisting.display}</a>.
+        </p>
+        <ul class="checks" style="margin-top:22px">
+          <li>Open 8am–8pm every day, weekends included</li>
+          <li>Walk-ins welcome — a request just lets us prepare</li>
+          <li>Upfront pricing before any treatment begins</li>
+        </ul>
+      </div>
+
+      <CallbackForm submitLabel="Request My Appointment" />
+    </div>
+  </div>
+
+  <CtaSpine
+    heading="Don't wait on a callback if you're hurting."
+    text="For same-day emergency care, calling is fastest. New patients (720) 573-2629 · existing patients (720) 988-0759."
+  />
+</BaseLayout>

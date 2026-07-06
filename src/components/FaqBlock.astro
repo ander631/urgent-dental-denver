@@ -1,0 +1,18 @@
+---
+/** FAQ block — all Q/A visible in the DOM (no accordion hiding indexable text,
+ *  spec §2). Text here is identical to the FAQPage schema (spec §8). */
+import type { Faq } from '../data/services';
+interface Props { faqs: Faq[]; heading?: string; }
+const { faqs, heading = 'Frequently asked questions' } = Astro.props;
+---
+<section class="article" aria-label={heading}>
+  <h2 class="prose" style="font-size:32px;margin:46px 0 6px">{heading}</h2>
+  <div class="faq">
+    {faqs.map((f) => (
+      <div class="faq-item">
+        <h3>{f.q}</h3>
+        <p>{f.a}</p>
+      </div>
+    ))}
+  </div>
+</section>

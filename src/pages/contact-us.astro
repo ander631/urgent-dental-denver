@@ -1,0 +1,134 @@
+---
+/**
+ * Contact → /contact-us/ (spec §5, §11 Phase 4). Full NAP, hours, map embed,
+ * both click-to-call numbers, a text option, directions, and the callback form.
+ * NAP comes only from SITE (single source of truth) so it can't drift from GBP.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import CallButton from '../components/CallButton.astro';
+import CallbackForm from '../components/CallbackForm.astro';
+import CtaSpine from '../components/CtaSpine.astro';
+import { Image } from 'astro:assets';
+import officeExterior from '../assets/office-exterior.jpg';
+import { SITE } from '../data/site';
+import { breadcrumbList, medicalWebPage } from '../lib/schema';
+
+const site = Astro.site!.href;
+const base = site.replace(/\/$/, '');
+const canonical = `${base}/contact-us/`;
+
+const addr = SITE.address;
+const fullAddress = `${addr.street}, ${addr.locality}, ${addr.region} ${addr.postalCode}`;
+const mapQuery = encodeURIComponent(`${addr.street}, ${addr.locality}, ${addr.region} ${addr.postalCode}`);
+// Keyless embed + Directions deep-link. TODO(owner §13.12): swap for the official
+// Google Business Profile embed / place ID once confirmed so the pin is exact.
+const mapEmbed = `https://www.google.com/maps?q=${mapQuery}&output=embed`;
+const directions = `https://www.google.com/maps/dir/?api=1&destination=${mapQuery}`;
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Contact', path: '/contact-us/' },
+];
+
+const title = 'Contact Urgent Dental of Denver | Emergency Dentist, Open 8am–8pm';
+const description =
+  `Contact Urgent Dental of Denver at ${SITE.phoneNewPatients.display}. Open 8am–8pm every day at ${fullAddress}. Same-day emergency care, walk-ins welcome.`;
+
+const jsonLd = [
+  breadcrumbList(site, crumbs),
+  medicalWebPage({ site, canonical, name: 'Contact Urgent Dental of Denver', description }),
+];
+---
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
+  <div class="wrap">
+    <Breadcrumb items={crumbs} />
+
+    <header class="self-start" style="max-width:760px">
+      <div class="eyebrow">Contact</div>
+      <h1>Contact Urgent Dental of Denver</h1>
+      <p class="lead">
+        In pain right now? Calling is always the fastest way to be seen — we answer the phone and
+        keep same-day time open. You can also text us or leave your details below and we'll call you
+        back.
+      </p>
+    </header>
+
+    <section class="contact-grid">
+      <div>
+        <Image
+          src={officeExterior}
+          alt="Urgent Dental of Denver — the DENTAL building at 2121 S Downing Street"
+          class="office-photo"
+          widths={[480, 760]}
+          sizes="(max-width: 860px) 100vw, 560px"
+          loading="lazy"
+        />
+        <p class="muted" style="font-size:13.5px;font-weight:600;margin:8px 0 20px">
+          Look for the <strong style="color:var(--ink)">DENTAL</strong> sign at 2121 S Downing Street. Customer parking on site.
+        </p>
+        <div class="nap">
+          <div class="nap-row">
+            <span class="ic" aria-hidden="true">☎</span>
+            <span class="v">
+              <span class="k">Call — new patients</span>
+              <a href={SITE.phoneNewPatients.href}>{SITE.phoneNewPatients.display}</a>
+            </span>
+          </div>
+          <div class="nap-row">
+            <span class="ic" aria-hidden="true">☎</span>
+            <span class="v">
+              <span class="k">Call — existing patients</span>
+              <a href={SITE.phoneExisting.href}>{SITE.phoneExisting.display}</a>
+            </span>
+          </div>
+          <div class="nap-row">
+            <span class="ic" aria-hidden="true">✉</span>
+            <span class="v">
+              <span class="k">Text or email</span>
+              Text {SITE.textLine} · <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+            </span>
+          </div>
+          <div class="nap-row">
+            <span class="ic" aria-hidden="true">📍</span>
+            <span class="v">
+              <span class="k">Visit us</span>
+              {addr.street}<span class="sub">{addr.locality}, {addr.region} {addr.postalCode}</span>
+              <a href={directions} target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;color:var(--coral);font-weight:800;font-size:14px">Get directions →</a>
+            </span>
+          </div>
+          <div class="nap-row">
+            <span class="ic" aria-hidden="true">🕗</span>
+            <span class="v">
+              <span class="k">Hours</span>
+              Open every day · 8:00 AM – 8:00 PM
+              <span class="sub">Walk-ins welcome — calling ahead helps us prepare.</span>
+            </span>
+          </div>
+        </div>
+
+        <iframe
+          class="map-embed"
+          src={mapEmbed}
+          title={`Map to Urgent Dental of Denver, ${fullAddress}`}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen></iframe>
+      </div>
+
+      <div>
+        <div class="fastest" style="margin-bottom:20px">
+          <div class="k">Fastest way to be seen</div>
+          <h3>For same-day care, calling is fastest.</h3>
+          <CallButton size="big" lead="Call Now — New Patients" />
+        </div>
+        <CallbackForm />
+      </div>
+    </section>
+  </div>
+
+  <CtaSpine
+    heading="Hurting now? We're open 8am–8pm, every day."
+    text="Same-day emergency care, walk-ins welcome. New patients (720) 573-2629 · existing patients (720) 988-0759."
+  />
+</BaseLayout>

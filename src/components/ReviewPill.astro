@@ -1,0 +1,15 @@
+---
+/**
+ * Google review pill. Represents the REAL rating + count honestly (spec §10).
+ * TODO(owner §13.5): confirm the live Google count at launch, or render it live
+ * from the reviews widget so it stays accurate as it grows. Do not inflate.
+ */
+import { SITE } from '../data/site';
+const { rating, count } = SITE.reviews;
+---
+<span class="gbadge">
+  <b>Google</b>
+  <span class="stars" aria-hidden="true">★★★★★</span>
+  <span style="font-weight:800;font-size:15px">{rating}</span>
+  <span class="muted" style="font-size:13px;font-weight:600">· {count} reviews</span>
+</span>

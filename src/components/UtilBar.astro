@@ -1,0 +1,30 @@
+---
+/**
+ * Utility bar: Google review pill (left), logo (center), existing-patient line
+ * (right). Per owner request the header carries only TWO call spots total: the
+ * existing-patient number (here) and the new-patient "Call Now" (in the nav) —
+ * so the two duplicate new-patient CTAs that used to sit here and in the nav are
+ * gone. Existing-patient number never competes with the new-patient CTA (§9).
+ */
+import { SITE } from '../data/site';
+import ReviewPill from './ReviewPill.astro';
+import logo from '../assets/logo.webp';
+---
+<header class="util">
+  <div class="wrap">
+    <div class="util-in">
+      <div><ReviewPill /></div>
+      <div class="util-center">
+        <a href="/" class="logo-link" aria-label={`${SITE.name} — home`}>
+          <img src={logo.src} width={logo.width} height={logo.height} alt={SITE.name} class="site-logo" />
+        </a>
+      </div>
+      <div class="util-right">
+        <div class="exist">
+          Existing patient?<br />
+          <a href={SITE.phoneExisting.href}>{SITE.phoneExisting.display}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

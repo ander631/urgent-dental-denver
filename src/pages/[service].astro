@@ -1,0 +1,98 @@
+---
+/**
+ * Emergency service page template → /[slug]/ (e.g. /root-canal-denver-co/).
+ * One page per service; the old duplicates 301 in (src/data/redirects.ts).
+ * Structure (spec §5/§6): breadcrumb → H1 → direct-answer block → what it is →
+ * when it's an emergency → what to do right now → treatment at this office →
+ * author/reviewer line → "good to know" (FAQ info woven in) → CTA spine →
+ * related services.
+ * Schema (spec §8): MedicalWebPage + Service + BreadcrumbList.
+ *
+ * FAQs: per owner request the Q&A now lives on ONE page (/faq/), not as a
+ * repeated FaqBlock here. The useful info is woven into this page's prose
+ * (`goodToKnow`), and FAQPage schema is emitted only on /faq/.
+ */
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import AuthorLine from '../components/AuthorLine.astro';
+import CtaSpine from '../components/CtaSpine.astro';
+import RelatedServices from '../components/RelatedServices.astro';
+import CallButton from '../components/CallButton.astro';
+import { SERVICES } from '../data/services';
+import { servicePageSchema, breadcrumbList } from '../lib/schema';
+
+export const getStaticPaths = (() =>
+  SERVICES.map((s) => ({ params: { service: s.slug }, props: { s } }))) satisfies GetStaticPaths;
+
+const { s } = Astro.props;
+const site = Astro.site!.href;
+const canonical = new URL(`/${s.slug}/`, site).href;
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Emergency Services', path: '/emergency-dentist-denver-co/' },
+  { name: s.name, path: `/${s.slug}/` },
+];
+
+const jsonLd = [
+  breadcrumbList(site, crumbs),
+  ...servicePageSchema({ site, canonical, name: s.h1.replace(/ in Denver.*/i, ''), h1: s.h1, description: s.metaDescription }),
+];
+---
+<BaseLayout title={s.title} description={s.metaDescription} jsonLd={jsonLd}>
+  <div class="wrap">
+    <Breadcrumb items={crumbs} />
+
+    <section class="svc-hero article">
+      <div class="eyebrow">Same-Day Emergency Dentist · Denver</div>
+      <h1>{s.h1}</h1>
+      <div class="answer">
+        {s.directAnswer}
+        <div class="a-cta">
+          <CallButton size="big" lead="Call Now — New Patients" />
+          <a class="btn btn-ghost" href="/#contact">Request a Time</a>
+        </div>
+      </div>
+    </section>
+
+    <article class="article prose">
+      <h2>What it is</h2>
+      {s.whatItIs.map((p) => <p>{p}</p>)}
+
+      <h2>When it's a dental emergency</h2>
+      <p class="note">See us the same day if any of these apply:</p>
+      <ul class="checks">
+        {s.whenEmergency.map((w) => <li>{w}</li>)}
+      </ul>
+
+      <h2>What to do right now</h2>
+      <ol class="steps">
+        {s.whatToDoNow.map((step) => (
+          <li><b>{step.title}</b><span>{step.detail}</span></li>
+        ))}
+      </ol>
+
+      <h2>What treatment involves at our office</h2>
+      {s.treatment.map((p) => <p>{p}</p>)}
+    </article>
+
+    <AuthorLine />
+
+    {s.goodToKnow && s.goodToKnow.length > 0 && (
+      <article class="article prose" style="margin-top:20px">
+        <h2>Good to know</h2>
+        {s.goodToKnow.map((p) => <p>{p}</p>)}
+        <p class="note">More questions about cost, insurance, or what to expect? See our
+          <a href="/faq/">frequently asked questions</a>.</p>
+      </article>
+    )}
+
+    <CtaSpine
+      heading="In pain? We'll see you today."
+      text="Don't wait it out — call now and we'll get you seen. We're open until 8pm tonight."
+    />
+
+    <RelatedServices slugs={s.related} />
+  </div>
+</BaseLayout>

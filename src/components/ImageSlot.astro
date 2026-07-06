@@ -1,0 +1,31 @@
+---
+/**
+ * Placeholder for an owner-supplied photo. Renders at fixed dimensions so it
+ * reserves layout space (no CLS — spec §7 / §17). Carries descriptive alt text
+ * now so the real image inherits it.
+ *
+ * TODO(owner): supply real office/team photos. When assets land, swap this for
+ * astro:assets <Image> (responsive, lazy, WebP, explicit width/height) — the
+ * real exterior photo in the approved design is the hero asset (spec §7).
+ */
+interface Props {
+  /** Descriptive alt text — required. Doubles as the on-placeholder caption. */
+  alt: string;
+  height?: number | string;
+  width?: number | string;
+  radius?: number;
+  class?: string;
+}
+
+const { alt, height = 480, width = '100%', radius = 24, class: klass = '' } = Astro.props;
+const h = typeof height === 'number' ? `${height}px` : height;
+const w = typeof width === 'number' ? `${width}px` : width;
+---
+<div
+  class:list={['image-slot', klass]}
+  role="img"
+  aria-label={alt}
+  style={`width:${w};height:${h};border-radius:${radius}px`}
+>
+  <span aria-hidden="true">{alt}</span>
+</div>

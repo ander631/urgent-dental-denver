@@ -1,0 +1,102 @@
+---
+/**
+ * Footer with full NAP, both click-to-call numbers, hours, services + practice
+ * links, and address (spec §3, §5 internal linking). Existing-patient number
+ * appears here (secondary), alongside the dominant new-patient number.
+ *
+ * Service/practice links currently point at the homepage anchors of the
+ * approved single-page design. Phase 2/3/4 repoint them to the canonical
+ * service/hub/practice slugs once those pages exist. TODO(Phase 2+).
+ */
+import { SITE } from '../data/site';
+import { AREAS } from '../data/areas';
+import logo from '../assets/logo.webp';
+
+const year = 2026; // static build; Date.* avoided in config/data. TODO: bump at cutover if needed.
+
+// Point at canonical service slugs (spec §5 internal linking → canonical URLs).
+const services = [
+  { href: '/toothache-and-dental-pain-denver-co/', label: 'Toothache & pain' },
+  { href: '/broken-or-chipped-tooth-denver-co/', label: 'Broken tooth' },
+  { href: '/knocked-out-tooth-denver-co/', label: 'Knocked-out tooth' },
+  { href: '/tooth-extractions-denver-co/', label: 'Extractions' },
+  { href: '/root-canal-denver-co/', label: 'Root canals' },
+  { href: '/wisdom-teeth-denver-co/', label: 'Wisdom teeth' },
+  { href: '/emergency-dentist-denver-co/', label: 'All emergency services →' },
+];
+const practice = [
+  { href: '/meet-the-doctor/', label: 'Meet Dr. Boyd' },
+  { href: '/new-patients/', label: 'New patients' },
+  { href: '/faq/', label: 'FAQ' },
+  { href: '/blog/', label: 'Guides & advice' },
+  { href: '/#reviews', label: 'Reviews' },
+  { href: '/request-an-appointment/', label: 'Request a time' },
+  { href: '/contact-us/', label: 'Contact' },
+];
+// Areas we serve — nearby-community pages, driven off the AREAS data so this
+// list stays in sync as areas are added (spec §4a; owner expanded past §13.7's
+// 3–5 default to 9 real, locally-researched pages).
+const areas = AREAS.map((a) => ({ href: `/${a.slug}/`, label: a.area }));
+---
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <div>
+        <a href="/" class="foot-logo-chip" aria-label={`${SITE.name} — home`}>
+          <img src={logo.src} width={logo.width} height={logo.height} alt={SITE.name} class="foot-logo-img" />
+        </a>
+        <div class="foot-call">
+          <a class="foot-num" href={SITE.phoneNewPatients.href}>
+            <small>New patients — Call now</small>{SITE.phoneNewPatients.display}
+          </a>
+        </div>
+        <div class="foot-call">
+          <a class="foot-num" href={SITE.phoneExisting.href} style="font-size:20px">
+            <small>Existing patients</small>{SITE.phoneExisting.display}
+          </a>
+        </div>
+        <p style="margin-top:16px;font-size:14px;color:#9AB2D4;font-weight:600">Open 8am–8pm, Every Day</p>
+      </div>
+
+      <div>
+        <h4>Emergency Services</h4>
+        <div class="foot-links">
+          {services.map((l) => <a href={l.href}>{l.label}</a>)}
+        </div>
+      </div>
+
+      <div>
+        <h4>Practice</h4>
+        <div class="foot-links">
+          {practice.map((l) => <a href={l.href}>{l.label}</a>)}
+        </div>
+      </div>
+
+      <div>
+        <h4>Visit us</h4>
+        <address style="font-style:normal;font-size:15px;line-height:1.55">
+          {SITE.address.street}<br />
+          {SITE.address.locality}, {SITE.address.region} {SITE.address.postalCode}
+        </address>
+        <h4 style="margin-top:22px">Areas we serve</h4>
+        <div class="foot-links">
+          {areas.map((l) => <a href={l.href}>Emergency dentist in {l.label}</a>)}
+        </div>
+        {/* TODO(owner): real Google Maps embed on Contact page (spec §5 contact). */}
+        <div class="foot-mini-map" aria-hidden="true">
+          <div class="map-grid-bg" style="opacity:.35"></div>
+          <div class="map-pin" style="gap:4px">
+            <span class="p" style="width:12px;height:12px;box-shadow:0 0 0 4px rgba(47,111,168,.3)"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot-bottom">
+      <div>© {year} {SITE.name} · Emergency-only dental care</div>
+      <div class="pay">
+        <span>PPO</span><span>CareCredit</span><span>Apple Pay</span><span>Visa · MC · Amex</span>
+      </div>
+    </div>
+  </div>
+</footer>

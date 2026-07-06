@@ -1,0 +1,64 @@
+---
+/**
+ * Blog index → /blog/ (spec §5, §11 Phase 4). Target of the
+ * /category/featured-article/ → /blog/ 301. Lists published posts. As real
+ * migrated content is added to posts.ts, it appears here automatically.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import CtaSpine from '../../components/CtaSpine.astro';
+import { POSTS } from '../../data/posts';
+import { fmtDate } from '../../lib/date';
+import { breadcrumbList, medicalWebPage } from '../../lib/schema';
+
+const site = Astro.site!.href;
+const base = site.replace(/\/$/, '');
+const canonical = `${base}/blog/`;
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Blog', path: '/blog/' },
+];
+
+const title = 'Dental Emergency Guides & Advice | Urgent Dental of Denver';
+const description =
+  'Practical guides on dental emergencies from Urgent Dental of Denver — when to seek urgent care, first aid, and what to expect. Open 8am–8pm every day.';
+
+const jsonLd = [
+  breadcrumbList(site, crumbs),
+  medicalWebPage({ site, canonical, name: 'Blog — Urgent Dental of Denver', description }),
+];
+
+// Newest first (stable sort by ISO date string).
+const posts = [...POSTS].sort((a, b) => (a.datePublished < b.datePublished ? 1 : -1));
+---
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
+  <div class="wrap">
+    <Breadcrumb items={crumbs} />
+
+    <header class="self-start" style="max-width:760px">
+      <div class="eyebrow">Guides &amp; advice</div>
+      <h1>Dental Emergency Guides</h1>
+      <p class="lead">
+        Plain-language guides to common dental emergencies — how to tell what's urgent, what to do
+        while you get seen, and what to expect. Reviewed by Dr. Boyd.
+      </p>
+    </header>
+
+    <div class="post-list">
+      {posts.map((p) => (
+        <a class="post-card" href={`/blog/${p.slug}/`}>
+          <span class="pd">{fmtDate(p.datePublished)}</span>
+          <h2>{p.title}</h2>
+          <p>{p.excerpt}</p>
+          <span class="go">Read the guide →</span>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <CtaSpine
+    heading="Not sure if it's an emergency? Call us."
+    text="We'll tell you over the phone whether to come in now. Open 8am–8pm every day. New patients (720) 573-2629."
+  />
+</BaseLayout>

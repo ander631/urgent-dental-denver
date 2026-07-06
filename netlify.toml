@@ -1,0 +1,31 @@
+# Netlify host config (spec §2). Static Astro build; publish the built output.
+# The 301 redirect map ships as public/_redirects (generated from
+# src/data/redirects.ts) and is copied into the publish dir.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# ── Canonical host enforcement (spec §7) ────────────────────────────────────
+# Enforce ONE host and 301 the other. DEFAULT below assumes www is canonical
+# (matches astro.config `site`). CONFIRM against the live canonical host before
+# cutover and flip if needed — do NOT switch host format mid-rebuild (spec §13.2).
+# On the temporary *.netlify.app staging URL these host redirects are inert;
+# they take effect once the custom domain is attached at cutover.
+#
+# TODO(owner §13.2 / §13.3, LAUNCH BLOCKER): set the custom domain in Netlify,
+# confirm www vs non-www, and verify the apex→www (or www→apex) 301 is live.
+[[redirects]]
+  from = "https://urgentdentalofdenver.com/*"
+  to = "https://www.urgentdentalofdenver.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://urgentdentalofdenver.com/*"
+  to = "https://www.urgentdentalofdenver.com/:splat"
+  status = 301
+  force = true

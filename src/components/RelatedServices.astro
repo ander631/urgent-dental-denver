@@ -1,0 +1,19 @@
+---
+/** Related-service internal links (spec §5): each service page links to 2–3
+ *  related services plus the hub. Descriptive anchors, real <a href>. */
+import { SERVICE_BY_SLUG } from '../data/services';
+interface Props { slugs: string[]; }
+const { slugs } = Astro.props;
+const items = slugs
+  .map((s) => SERVICE_BY_SLUG[s])
+  .filter(Boolean);
+---
+<section class="related" aria-label="Related emergency services">
+  <h3>Related emergency services</h3>
+  <div class="related-grid">
+    {items.map((s) => (
+      <a class="rel-chip" href={`/${s.slug}/`}>{s.name}</a>
+    ))}
+    <a class="rel-chip" href="/emergency-dentist-denver-co/">All emergency services →</a>
+  </div>
+</section>

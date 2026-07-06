@@ -1,0 +1,39 @@
+---
+/**
+ * Sticky primary nav with the persistent new-patient Call CTA (spec §3, §9).
+ *
+ * Links match the approved single-page homepage (anchor nav). Phase 2 adds the
+ * services hub + service pages; at that point switch these to real page routes
+ * (/emergency-dentist-denver-co/, /meet-the-doctor/, /reviews/, /contact-us/…)
+ * with active states, and keep the global nav/footer pointing to canonical
+ * slugs (spec §7 internal linking). TODO(Phase 2).
+ */
+import CallButton from './CallButton.astro';
+
+// Absolute targets where a real page exists; /#anchor for homepage sections so
+// the link works from any page (jumps to the homepage section).
+const links = [
+  { href: '/', label: 'Home' },
+  { href: '/emergency-dentist-denver-co/', label: 'Emergency Services' },
+  { href: '/meet-the-doctor/', label: 'Meet Dr. Boyd' },
+  { href: '/#area', label: 'Service Area' },
+  { href: '/faq/', label: 'FAQ' },
+  { href: '/#reviews', label: 'Reviews' },
+  { href: '/contact-us/', label: 'Contact' },
+];
+---
+<nav class="nav" aria-label="Primary">
+  <div class="wrap">
+    <div class="nav-in">
+      <div class="nav-links">
+        {links.map((l) => <a href={l.href}>{l.label}</a>)}
+      </div>
+      <div class="nav-cta">
+        {/* Single new-patient call spot in the header (owner request). The plain
+            duplicate number that used to sit beside it was removed — the button
+            already shows the number. */}
+        <CallButton size="sm" lead="Call Now" numberLabel="New Patients" />
+      </div>
+    </div>
+  </div>
+</nav>
